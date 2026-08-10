@@ -1,6 +1,6 @@
 /**
  * @file functional_safety_lib.cpp
- * @brief Functional safety tests for Polaris Platform (Sitara AM62x/AM64x).
+ * @brief Functional safety tests for Polaris Platform (Renesas RZ/G2L).
  *        Polaris is a commercial SBC and is NOT rated for automotive ASIL-D or
  *        IEC 61508 SIL-3.  These tests document the available safety-relevant
  *        features (watchdog, ECC proxy, thermal shutdown, PMIC brownout) and
@@ -73,20 +73,20 @@ FunctionalSafetyTesting::~FunctionalSafetyTesting()
 
 /**
  * @brief Lockstep CPU test proxy (Polaris does not have hardware lockstep).
- * @details Sitara AM62x/AM64x Cortex-A76 does not implement lockstep CPU execution.
+ * @details Renesas RZ/G2L Cortex-A55 does not implement lockstep CPU execution.
  *          This test documents the limitation and verifies the kernel watchdog
- *          (PRU-ICSS hardware watchdog) as the closest safety-relevant substitute.
+ *          (Cortex-M33 hardware watchdog) as the closest safety-relevant substitute.
  */
 TestOutput FunctionalSafetyTesting::testLockstepCpuOperation()
 {
     std::vector<std::string> data;
-    data.push_back("=== CPU Lockstep (Polaris Sitara AM62x/AM64x) ===");
-    data.push_back("[INFO] Polaris Cortex-A76 does NOT implement hardware CPU lockstep");
-    data.push_back("[INFO] For ASIL-C/D lockstep requirement, use dedicated MCU (e.g. PRU-ICSS HAT)");
+    data.push_back("=== CPU Lockstep (Polaris Renesas RZ/G2L) ===");
+    data.push_back("[INFO] Polaris Cortex-A55 does NOT implement hardware CPU lockstep");
+    data.push_back("[INFO] For ASIL-C/D lockstep requirement, use dedicated MCU (e.g. Cortex-M33 HAT)");
 
-    // Check PRU-ICSS watchdog as a lockstep substitute
+    // Check Cortex-M33 watchdog as a lockstep substitute
     bool wdPresent = fsPathExists("/dev/watchdog0");
-    data.push_back(wdPresent ? "[PASS] PRU-ICSS hardware watchdog /dev/watchdog0 present (safety monitor)"
+    data.push_back(wdPresent ? "[PASS] Cortex-M33 hardware watchdog /dev/watchdog0 present (safety monitor)"
                              : "[WARN] /dev/watchdog0 not found — watchdog driver not loaded");
 
     // Check if systemd-watchdog is active
@@ -95,7 +95,7 @@ TestOutput FunctionalSafetyTesting::testLockstepCpuOperation()
 
     // ARM CPU topology
     std::string cpuTopology = fsRunCmd("grep -m1 'CPU part' /proc/cpuinfo 2>/dev/null");
-    data.push_back("[INFO] " + cpuTopology + " (Cortex-A76 part 0xD0B)");
+    data.push_back("[INFO] " + cpuTopology + " (Cortex-A55 part 0xD0B)");
 
     {
         TestOutput _out;
@@ -109,7 +109,7 @@ TestOutput FunctionalSafetyTesting::testLockstepCpuOperation()
 
 /**
  * @brief ECC memory test proxy (Polaris LPDDR4X has no on-die ECC).
- * @details Sitara AM62x/AM64x uses standard LPDDR4X-4267 without ECC.  This test
+ * @details Renesas RZ/G2L uses standard LPDDR4X-4267 without ECC.  This test
  *          documents the limitation and verifies that pstore/crash records
  *          are absent (proxy for memory integrity).
  */
@@ -117,7 +117,7 @@ TestOutput FunctionalSafetyTesting::testEccOnMemories()
 {
     std::vector<std::string> data;
     data.push_back("=== ECC Memory (Polaris LPDDR4X-4267) ===");
-    data.push_back("[INFO] Polaris Sitara AM62x/AM64x LPDDR4X has NO hardware ECC");
+    data.push_back("[INFO] Polaris Renesas RZ/G2L LPDDR4X has NO hardware ECC");
     data.push_back("[INFO] For ECC, use Polaris Polaris SoM Lite with ECC LPDDR5 carrier (future)");
 
     // pstore as memory-error proxy
@@ -198,7 +198,7 @@ TestOutput FunctionalSafetyTesting::testRedundantPowerSupplies()
 TestOutput FunctionalSafetyTesting::testSafetyMonitoring()
 {
     std::vector<std::string> data;
-    data.push_back("=== Safety Monitoring (Polaris PRU-ICSS Watchdog + PMIC) ===");
+    data.push_back("=== Safety Monitoring (Polaris Cortex-M33 Watchdog + PMIC) ===");
 
     // Hardware watchdog
     bool wdOk = fsPathExists("/dev/watchdog0");
@@ -244,9 +244,9 @@ TestOutput FunctionalSafetyTesting::testDiagnosticCoverage()
 
     // List what is testable
     static const std::vector<std::pair<std::string, std::string>> checks = {
-        {"/dev/watchdog0",                     "PRU-ICSS hardware watchdog"},
-        {"/sys/class/thermal/thermal_zone0",   "Sitara AM62x/AM64x thermal zone"},
-        {"/sys/class/thermal/thermal_zone1",   "PRU-ICSS thermal zone"},
+        {"/dev/watchdog0",                     "Cortex-M33 hardware watchdog"},
+        {"/sys/class/thermal/thermal_zone0",   "Renesas RZ/G2L thermal zone"},
+        {"/sys/class/thermal/thermal_zone1",   "Cortex-M33 thermal zone"},
         {"/sys/devices/system/cpu/cpu0/cpufreq","CPUfreq + throttle detection"},
         {"/sys/class/hwmon",                   "hwmon (PMIC/temp sensors)"},
         {"/sys/block/mmcblk0",                 "eMMC/SD storage"},
@@ -373,7 +373,7 @@ TestOutput FunctionalSafetyTesting::testFailsafeBehavior()
 
 /**
  * @brief ASIL QS-L / QS-R rail isolation test (N/A on Polaris).
- * @details Polaris Sitara AM62x/AM64x / MXL7704 PMIC has no ASIL-rated isolated voltage rails.
+ * @details Polaris Renesas RZ/G2L / MXL7704 PMIC has no ASIL-rated isolated voltage rails.
  *          Documents the limitation and checks available hwmon voltage inputs.
  */
 TestOutput FunctionalSafetyTesting::testAsilQsLAndRRailIsolation()

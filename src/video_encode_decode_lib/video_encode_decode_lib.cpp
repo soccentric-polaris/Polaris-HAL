@@ -3,7 +3,7 @@
  * @brief Implementation file for VideoEncodeDecodeTesting class – Polaris Platform
  * @author sandesh ghimire
  * @copyright (C) Soccentric LLC *
- * Polaris video codec hardware specifications (Sitara AM62x/AM64x VPU / PRU-ICSS):
+ * Polaris video codec hardware specifications (Renesas RZ/G2L VPU / Cortex-M33):
  *   sitara_compatible-codec (V4L2 M2M firmware codec via VPU):
  *     - H.264 encode up to 1920×1080 @ 60 fps
  *     - H.264 decode up to 1920×1080 @ 60 fps

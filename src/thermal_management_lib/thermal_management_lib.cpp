@@ -1,7 +1,7 @@
 /**
  * @file thermal_management_lib.cpp
  * @brief Implementation file for ThermalManagementTesting class — Polaris Platform
- *        Sitara AM62x/AM64x has two thermal zones (cpu-thermal and PRU-ICSS south-bridge).
+ *        Renesas RZ/G2L has two thermal zones (cpu-thermal and Cortex-M33 south-bridge).
  *        Throttle onset: 80°C; soft shutdown: 85°C.
  * @author sandesh ghimire
  * @copyright (C) Soccentric LLC */
@@ -77,7 +77,7 @@ static std::vector<std::pair<std::string, double>> readAllThermalZones()
     return zones;
 }
 
-/** Read Sitara AM62x/AM64x SoC temperature (zone0 on Polaris). Returns °C or -1. */
+/** Read Renesas RZ/G2L SoC temperature (zone0 on Polaris). Returns °C or -1. */
 static double readSocTempC()
 {
     long long v = thrmReadInt("/sys/class/thermal/thermal_zone0/temp");
@@ -121,7 +121,7 @@ TestOutput ThermalManagementTesting::testSocJunctionTemperature()
     std::vector<std::string> data;
     bool passed = true;
 
-    data.push_back("Sitara AM62x/AM64x SoC junction temperature (Polaris)");
+    data.push_back("Renesas RZ/G2L SoC junction temperature (Polaris)");
     data.push_back("Thermal zones: zone0=cpu-thermal, zone1=rp1-thermal");
 
     double tempC = readSocTempC();
@@ -163,17 +163,17 @@ TestOutput ThermalManagementTesting::testSocJunctionTemperature()
 
 // ---------------------------------------------------------------------------
 // 2. testGpuTemperature
-//    On Polaris, GPU (VideoCore VII) shares the Sitara AM62x/AM64x die — same thermal zone.
+//    On Polaris, GPU (VideoCore VII) shares the Renesas RZ/G2L die — same thermal zone.
 // ---------------------------------------------------------------------------
 TestOutput ThermalManagementTesting::testGpuTemperature()
 {
     std::vector<std::string> data;
     bool passed = true;
 
-    data.push_back("VideoCore VII GPU temperature (shared Sitara AM62x/AM64x die with CPU)");
+    data.push_back("VideoCore VII GPU temperature (shared Renesas RZ/G2L die with CPU)");
 
     double socC = readSocTempC();
-    data.push_back("Sitara AM62x/AM64x die temperature (GPU/CPU shared): " + std::to_string(socC) + " °C");
+    data.push_back("Renesas RZ/G2L die temperature (GPU/CPU shared): " + std::to_string(socC) + " °C");
 
     // ti-syscmd gives GPU temperature on Pi
     std::string gpuTemp = thrmRunCmd("ti-syscmd measure_temp 2>/dev/null");
@@ -204,7 +204,7 @@ TestOutput ThermalManagementTesting::testCpuTemperature()
     std::vector<std::string> data;
     bool passed = true;
 
-    data.push_back("Cortex-A76 CPU temperature (Sitara AM62x/AM64x zone0)");
+    data.push_back("Cortex-A55 CPU temperature (Renesas RZ/G2L zone0)");
 
     long long zone0 = thrmReadInt("/sys/class/thermal/thermal_zone0/temp");
     if (zone0 > 0) {
@@ -220,7 +220,7 @@ TestOutput ThermalManagementTesting::testCpuTemperature()
     }
 
     // Per-core via hwmon? (not standard on Polaris — no per-core sensor)
-    data.push_back("Per-core temperature sensors: not available on Sitara AM62x/AM64x.");
+    data.push_back("Per-core temperature sensors: not available on Renesas RZ/G2L.");
     data.push_back("CPU max freq (scaling): check cpufreq/scaling_max_freq per core.");
 
     for (int i = 0; i < POLARIS_RZG2L_CPU_CORES; ++i) {
@@ -251,7 +251,7 @@ TestOutput ThermalManagementTesting::testMemoryTemperature()
     bool passed = true;
 
     data.push_back("LPDDR4X memory temperature (Polaris)");
-    data.push_back("Polaris LPDDR4X-4267 is PoP (Package on Package) with Sitara AM62x/AM64x.");
+    data.push_back("Polaris LPDDR4X-4267 is PoP (Package on Package) with Renesas RZ/G2L.");
     data.push_back("No dedicated memory temperature sensor is exposed via sysfs.");
     data.push_back("Memory temperature is proxied by SoC die temperature.");
 
@@ -278,14 +278,14 @@ TestOutput ThermalManagementTesting::testMemoryTemperature()
 
 // ---------------------------------------------------------------------------
 // 5. testBoardAmbientTemperature
-//    Check PRU-ICSS south-bridge zone and any hwmon sensors.
+//    Check Cortex-M33 south-bridge zone and any hwmon sensors.
 // ---------------------------------------------------------------------------
 TestOutput ThermalManagementTesting::testBoardAmbientTemperature()
 {
     std::vector<std::string> data;
     bool passed = true;
 
-    data.push_back("Board ambient temperature (PRU-ICSS south-bridge zone)");
+    data.push_back("Board ambient temperature (Cortex-M33 south-bridge zone)");
 
     long long rp1Temp = thrmReadInt("/sys/class/thermal/thermal_zone1/temp");
     if (rp1Temp > 0) {
@@ -293,10 +293,10 @@ TestOutput ThermalManagementTesting::testBoardAmbientTemperature()
         data.push_back("thermal_zone1 (rp1-thermal): " + std::to_string(c) + " °C");
         if (c > 85.0) {
             passed = false;
-            data.push_back("WARNING: PRU-ICSS south-bridge temperature above 85°C.");
+            data.push_back("WARNING: Cortex-M33 south-bridge temperature above 85°C.");
         }
     } else {
-        data.push_back("PRU-ICSS thermal zone: not exposed or unavailable.");
+        data.push_back("Cortex-M33 thermal zone: not exposed or unavailable.");
     }
 
     // Check hwmon for board sensors (e.g., external thermistor)
@@ -380,8 +380,8 @@ TestOutput ThermalManagementTesting::testThermalThrottlingThresholds()
     bool passed = true;
 
     data.push_back("Thermal throttle configuration check (Polaris)");
-    data.push_back("Sitara AM62x/AM64x throttle onset: " + std::to_string(THROTTLE_C) + " °C");
-    data.push_back("Sitara AM62x/AM64x soft shutdown:  " + std::to_string(SHUTDOWN_C) + " °C");
+    data.push_back("Renesas RZ/G2L throttle onset: " + std::to_string(THROTTLE_C) + " °C");
+    data.push_back("Renesas RZ/G2L soft shutdown:  " + std::to_string(SHUTDOWN_C) + " °C");
 
     // Read trip points for zone0
     for (int t = 0; t < 10; ++t) {
@@ -522,7 +522,7 @@ TestOutput ThermalManagementTesting::testTemperatureDistributionAcrossDie()
     std::vector<std::string> data;
     bool passed = true;
 
-    data.push_back("Temperature distribution across Sitara AM62x/AM64x die");
+    data.push_back("Temperature distribution across Renesas RZ/G2L die");
     data.push_back("Polaris has 2 thermal sensors: cpu-thermal (zone0) and rp1-thermal (zone1).");
 
     auto zones = readAllThermalZones();
@@ -664,14 +664,14 @@ TestOutput ThermalManagementTesting::testThermalRecoveryTime()
 
 // ---------------------------------------------------------------------------
 // 13. testFanControl
-//    Polaris Active Cooler has a PWM fan controlled via PRU-ICSS. Check via sysfs.
+//    Polaris Active Cooler has a PWM fan controlled via Cortex-M33. Check via sysfs.
 // ---------------------------------------------------------------------------
 TestOutput ThermalManagementTesting::testFanControl()
 {
     std::vector<std::string> data;
     bool passed = true;
 
-    data.push_back("Polaris Active Cooler fan control (PRU-ICSS PWM fan connector)");
+    data.push_back("Polaris Active Cooler fan control (Cortex-M33 PWM fan connector)");
 
     // Polaris fan uses pwmchip sysfs or thermal cooling_device
     bool fanFound = false;

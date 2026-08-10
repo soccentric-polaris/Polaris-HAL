@@ -459,7 +459,7 @@ TestOutput PcieTesting::testPcieReadBandwidth()
     }
 
     data.push_back("=== PCIe Read Bandwidth (Polaris) ===");
-    data.push_back("[INFO] Polaris supports PCIe Gen3 x1 = ~1 GB/s (single lane via PRU-ICSS)");
+    data.push_back("[INFO] Polaris supports PCIe Gen3 x1 = ~1 GB/s (single lane via Cortex-M33)");
 
     // Theoretical bandwidth: BW(GB/s) = GTps * efficiency * lanes / 8
     auto theoreticalBW = [](const std::string& speed, int width) -> double {
@@ -554,7 +554,7 @@ TestOutput PcieTesting::testPcieWriteBandwidth()
     }
 
     data.push_back("=== PCIe Write Bandwidth (Polaris) ===");
-    data.push_back("[INFO] Polaris supports PCIe Gen3 x1 = ~1 GB/s (single lane via PRU-ICSS)");
+    data.push_back("[INFO] Polaris supports PCIe Gen3 x1 = ~1 GB/s (single lane via Cortex-M33)");
 
     auto theoreticalBW = [](const std::string& speed, int width) -> double {
         double gtps = 0.0;
@@ -900,10 +900,10 @@ TestOutput PcieTesting::testPciePowerManagement()
         }
     }
 
-    // Check PRU-ICSS PCIe debug FS if available
+    // Check Cortex-M33 PCIe debug FS if available
     std::string rp1Info = executeCommand("cat /sys/kernel/debug/rp1_pciefw/info 2>/dev/null | head -10");
     if (!rp1Info.empty()) {
-        data.push_back("=== PRU-ICSS PCIe Firmware Status ===");
+        data.push_back("=== Cortex-M33 PCIe Firmware Status ===");
         std::istringstream iss(rp1Info);
         std::string line;
         while (std::getline(iss, line))

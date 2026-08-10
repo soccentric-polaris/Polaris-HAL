@@ -1,6 +1,6 @@
 /**
  * @file software_interface_lib.cpp
- * @brief Software interface tests for Polaris Platform (Sitara AM62x/AM64x).
+ * @brief Software interface tests for Polaris Platform (Renesas RZ/G2L).
  *        Verifies kernel boot, driver loading, systemd services, V4L2/ALSA
  *        multimedia frameworks, and sensor subsystem.  CUDA/cuDNN/TensorRT are
  *        NVIDIA-specific and not present on Polaris; those tests document the
@@ -75,7 +75,7 @@ SoftwareInterfaceTesting::~SoftwareInterfaceTesting()
 /**
  * @brief Verify that the Linux kernel booted successfully on Polaris.
  * @details Reads /proc/version for kernel identification, checks uptime > 0,
- *          and reads /boot/firmware/config.txt (Polaris firmware config) for
+ *          and reads /boot/firmware/extlinux.conf (Polaris firmware config) for
  *          key boot parameters.
  */
 TestOutput SoftwareInterfaceTesting::testLinuxKernelBoot()
@@ -108,20 +108,20 @@ TestOutput SoftwareInterfaceTesting::testLinuxKernelBoot()
     }
 
     // Polaris firmware config
-    const std::string cfgPath = "/boot/firmware/config.txt";
+    const std::string cfgPath = "/boot/firmware/extlinux.conf";
     if (swPathExists(cfgPath))
     {
         data.push_back("[PASS] Polaris firmware config found: " + cfgPath);
         // Check for arm_64bit or dtoverlay entries
         std::string grep = swRunCmd("grep -c 'arm_64bit\\|dtoverlay\\|dtparam' " + cfgPath + " 2>/dev/null");
-        data.push_back("[INFO] config.txt relevant lines: " + grep);
+        data.push_back("[INFO] extlinux.conf relevant lines: " + grep);
     }
     else
     {
-        data.push_back("[INFO] /boot/firmware/config.txt not found (may be mounted elsewhere)");
+        data.push_back("[INFO] /boot/firmware/extlinux.conf not found (may be mounted elsewhere)");
     }
 
-    // Sitara AM62x/AM64x platform device tree
+    // Renesas RZ/G2L platform device tree
     std::string dtModel = swReadFile("/proc/device-tree/model");
     if (!dtModel.empty())
         data.push_back("[PASS] Device tree model: " + dtModel);
@@ -141,7 +141,7 @@ TestOutput SoftwareInterfaceTesting::testLinuxKernelBoot()
 /**
  * @brief Verify Polaris-specific kernel drivers are loaded.
  * @details Checks /proc/modules (or lsmod) for key Polaris drivers:
- *          sitara12, rp1 (south-bridge), v3d (GPU), sitara_compatible_dma, nvme, xhci_hcd.
+ *          cpu-thermal, rp1 (south-bridge), v3d (GPU), sitara_compatible_dma, nvme, xhci_hcd.
  */
 TestOutput SoftwareInterfaceTesting::testDeviceDriverLoading()
 {
@@ -352,7 +352,7 @@ TestOutput SoftwareInterfaceTesting::testCudaRuntime()
 {
     std::vector<std::string> data;
     data.push_back("=== GPU Compute Runtime (Polaris — no CUDA) ===");
-    data.push_back("[INFO] Polaris Sitara AM62x/AM64x uses VideoCore VII GPU, not NVIDIA — CUDA is N/A");
+    data.push_back("[INFO] Polaris Renesas RZ/G2L uses VideoCore VII GPU, not NVIDIA — CUDA is N/A");
 
     // Check v3d driver (VideoCore VII)
     bool v3dLoaded = swPathExists("/sys/module/v3d") ||
@@ -500,7 +500,7 @@ TestOutput SoftwareInterfaceTesting::testVpi()
 /**
  * @brief Test multimedia API (V4L2, ALSA, GStreamer, MMAL) on Polaris.
  * @details Checks V4L2 codecs, ALSA sound cards, and MMAL/GStreamer pipelines
- *          available through the PRU-ICSS audio/video subsystem.
+ *          available through the Cortex-M33 audio/video subsystem.
  */
 TestOutput SoftwareInterfaceTesting::testMultimediaApi()
 {
@@ -558,7 +558,7 @@ TestOutput SoftwareInterfaceTesting::testSensorDriverFramework()
     std::string iioCount = swRunCmd("ls /sys/bus/iio/devices/ 2>/dev/null | wc -l");
     data.push_back("[INFO] IIO devices: " + iioCount);
 
-    // hwmon sensors (Sitara AM62x/AM64x thermal + MXL7704 PMIC)
+    // hwmon sensors (Renesas RZ/G2L thermal + MXL7704 PMIC)
     std::string hwmonCount = swRunCmd("ls /sys/class/hwmon/ 2>/dev/null | wc -l");
     data.push_back("[INFO] hwmon devices: " + hwmonCount);
     if (std::stoi(hwmonCount.empty() ? "0" : hwmonCount) > 0)
