@@ -115,12 +115,12 @@ TestOutput SecurityFeaturesTesting::testBootloaderSignatureVerification()
         data.push_back("ti-syscmd otp_dump: not available.");
     }
 
-    // Check for sitara-eeprom-config signature field
-    std::string sigCheck = secRunCmd("sitara-eeprom-config 2>/dev/null | grep -i 'sign\\|public'");
-    if (!sigCheck.empty()) data.push_back("sitara-eeprom-config: " + sigCheck.substr(0, 200));
+    // Check for Renesas RZ/G2L-eeprom-config signature field
+    std::string sigCheck = secRunCmd("Renesas RZ/G2L-eeprom-config 2>/dev/null | grep -i 'sign\\|public'");
+    if (!sigCheck.empty()) data.push_back("Renesas RZ/G2L-eeprom-config: " + sigCheck.substr(0, 200));
 
     data.push_back("Default Polaris: secure boot is DISABLED (unsigned bootloader).");
-    data.push_back("Enable via: sitara-eeprom-config SIGNED_BOOT=1 and OTP fuse.");
+    data.push_back("Enable via: Renesas RZ/G2L-eeprom-config SIGNED_BOOT=1 and OTP fuse.");
     data.push_back("PASS: Bootloader signature check complete.");
     {
         TestOutput _out;
@@ -371,7 +371,7 @@ TestOutput SecurityFeaturesTesting::testHardwareRandomNumberGenerator()
             data.push_back("INFO: Cannot read /dev/hwrng (permission denied? use root).");
         }
     } else {
-        data.push_back("INFO: Load with: modprobe sitara_compatible-rng or check dtparam=random=on");
+        data.push_back("INFO: Load with: modprobe polaris_compatible-rng or check dtparam=random=on");
     }
 
     // Also check /dev/random entropy pool

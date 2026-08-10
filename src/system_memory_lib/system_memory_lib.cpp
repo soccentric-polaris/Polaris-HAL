@@ -744,8 +744,8 @@ TestOutput SystemMemoryTesting::testDmaTofromMemory()
         }
     }
 
-    // Check for sitara_compatible-dma driver
-    std::ifstream drvF("/sys/bus/platform/drivers/sitara_compatible-dma/uevent");
+    // Check for polaris_compatible-dma driver
+    std::ifstream drvF("/sys/bus/platform/drivers/polaris_compatible-dma/uevent");
     if (drvF.is_open()) {
         data.push_back("Polaris compatible DMA driver: loaded");
         dmaPresent = true;

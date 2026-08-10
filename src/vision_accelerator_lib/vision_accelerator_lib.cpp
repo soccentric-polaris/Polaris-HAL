@@ -232,7 +232,7 @@ TestOutput VisionAcceleratorTesting::testDmaEngine1Functionality()
     data.push_back(dmaPresent ? "[PASS] DMA platform devices found"
                               : "[INFO] DMA platform devices not found");
 
-    std::string dmaMod = vaRunCmd("grep -c 'sitara_compatible-dma\\|cpu-thermal' /proc/modules 2>/dev/null");
+    std::string dmaMod = vaRunCmd("grep -c 'polaris_compatible-dma\\|cpu-thermal' /proc/modules 2>/dev/null");
     data.push_back("[INFO] BCM DMA module count: " + dmaMod);
 
     {
@@ -351,7 +351,7 @@ TestOutput VisionAcceleratorTesting::testComputerVisionAlgorithms()
     std::vector<std::string> data;
     data.push_back("=== Computer Vision Algorithms (Polaris V4L2 ISP + OpenCV) ===");
 
-    bool ispOk = !vaRunCmd("grep -c 'sitara_compatible.isp' /proc/modules 2>/dev/null").empty();
+    bool ispOk = !vaRunCmd("grep -c 'polaris_compatible.isp' /proc/modules 2>/dev/null").empty();
     data.push_back(ispOk ? "[PASS] rzg2l-csi2 V4L2 ISP available"
                          : "[INFO] rzg2l-csi2 not detected");
 

@@ -141,7 +141,7 @@ TestOutput SoftwareInterfaceTesting::testLinuxKernelBoot()
 /**
  * @brief Verify Polaris-specific kernel drivers are loaded.
  * @details Checks /proc/modules (or lsmod) for key Polaris drivers:
- *          cpu-thermal, rp1 (south-bridge), v3d (GPU), sitara_compatible_dma, nvme, xhci_hcd.
+ *          cpu-thermal, rp1 (south-bridge), v3d (GPU), polaris_compatible_dma, nvme, xhci_hcd.
  */
 TestOutput SoftwareInterfaceTesting::testDeviceDriverLoading()
 {
@@ -152,7 +152,7 @@ TestOutput SoftwareInterfaceTesting::testDeviceDriverLoading()
         {"v3d",           "VideoCore VII GPU"},
         {"nvme",          "NVMe/PCIe storage"},
         {"xhci_hcd",      "USB3 xHCI host"},
-        {"sitara_compatible_dma",   "DMA engine"},
+        {"polaris_compatible_dma",   "DMA engine"},
         {"snd_polaris_compatible",   "Polaris compatible ALSA audio"},
         {"brcmfmac",      "BCM WiFi (optional)"},
         {"gpio_brcmstb",  "GPIO (Polaris gpiochip4)"},
@@ -201,7 +201,7 @@ TestOutput SoftwareInterfaceTesting::testDeviceDriverLoading()
 /**
  * @brief Verify that critical systemd services are active on Polaris.
  * @details Checks systemd unit state for ssh, dbus, networking, and
- *          polaris-sitara-specific services (polaris-config, rpmsg-pru-bridge if present).
+ *          polaris-Renesas RZ/G2L-specific services (polaris-config, rpmsg-pru-bridge if present).
  */
 TestOutput SoftwareInterfaceTesting::testSystemServiceStartup()
 {
@@ -290,7 +290,7 @@ TestOutput SoftwareInterfaceTesting::testApplicationFramework()
     if (!vcPath.empty())
         data.push_back("[PASS] ti-syscmd available: " + vcPath);
     else
-        data.push_back("[INFO] ti-syscmd not found (sitara-userland not installed)");
+        data.push_back("[INFO] ti-syscmd not found (Renesas RZ/G2L-userland not installed)");
 
     {
         TestOutput _out;
@@ -525,7 +525,7 @@ TestOutput SoftwareInterfaceTesting::testMultimediaApi()
 
     // HDMI audio (vc4-hdmi)
     bool hdmiAudio = swPathExists("/proc/asound") &&
-                     swRunCmd("grep -l 'vc4-hdmi\\|sitara_compatible' /proc/asound/cards 2>/dev/null | wc -l") != "0";
+                     swRunCmd("grep -l 'vc4-hdmi\\|polaris_compatible' /proc/asound/cards 2>/dev/null | wc -l") != "0";
     (void)hdmiAudio;
 
     // GStreamer pipeline test (fakesrc → fakesink, no hardware needed)

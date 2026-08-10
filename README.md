@@ -117,7 +117,7 @@ The Docker image is based on `ubuntu:22.04` (ARM64) and is named `Polaris`.
 - Module: `v3d`
 
 ### Video Codec
-- H.264 encode/decode: `sitara_compatible-codec` at `/dev/video10` (encoder), `/dev/video11` (decoder)
+- H.264 encode/decode: `polaris_compatible-codec` at `/dev/video10` (encoder), `/dev/video11` (decoder)
 - H.265/HEVC decode: `rpivid` at `/dev/video18` or `/dev/video19`
 
 ### Camera (CSI)
