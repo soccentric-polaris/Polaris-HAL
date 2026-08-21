@@ -1,43 +1,38 @@
-# Polaris-HAL – Hardware Abstraction Library for Polaris Platform ## Overview Polaris-HAL is a comprehensive hardware abstraction and testing suite targeting the **Polaris Platform** (Renesas RZ/G2L SoC + Cortex-M33 south-bridge). It provides a modular, extensible architecture for testing and exercising hardware interfaces and system components commonly found in automotive and industrial applications. > **Port history**: Originally developed for Renesas RZ/G2L .
-> Ported to Polaris Platform (Renesas RZ/G2L + Cortex-M33) — all platform-specific paths, constants,
-> and device nodes updated for the Renesas RZ/G2L hardware. ### Target Platform | Property | Value |
-|---|---|
-| SoC | Renesas RZ/G2L (quad-core Cortex-A55 @ 2.4 GHz) |
-| South-bridge | Cortex-M33 (USB 3, PCIe Gen3 x1, GPIO, I2S, CSI/DSI) |
-| GPU | Renesas RZ/G2L (12 shader quad cores, 800 MHz max) |
-| Memory | 4 GB/ 8 GB LPDDR4X-4267 |
-| AI Accelerator | Hailo-8 HAT+ (PCIe, ~26 INT8 TOPS) or Coral USB Edge TPU (~4 TOPS) |
-| OS | Polaris OS (64-bit)/ Ubuntu 24.04 ARM64 | ### Key Features - **Modular Library Architecture**: Separate libraries for CPU, GPU, DLA (Hailo-8/Coral), video codec (V4L2 M2M), camera (Unicam/Cortex-M33), audio (Cortex-M33 I2S), PCIe, USB (xhci-hcd), GPIO (gpiochip4), storage, Ethernet, and more.
-- **Polaris Platform Header**: Centralised constants in `src/platform_polaris_rzg2l.h` (device paths, thermal thresholds, memory bandwidth).
-- **Cross-compilation via Docker**: ARM64 Ubuntu 24.04 container (`Renesas RZ/G2L-builder`).
-- **Comprehensive Testing**: Unit tests, integration tests, and deployment workflows.
-- **Documentation Generation**: Integrated Doxygen support.
-- **Code Quality Tools**: clang-format and cppcheck. ## Prerequisites ### System Requirements - **Operating System**: Linux (Ubuntu 20.04+ recommended for host)
-- **Compiler**: GCC 11+ or Clang 14+
-- **Build Tools**: - CMake 3.10+ - Ninja build system - Make - Git
-- Docker installed and running (for cross-compilation) ## Build Process The project supports two primary build methods: 1. **Native Compilation**: Build directly on a Polaris Platform running 64-bit OS.
-2. **Docker-based Cross-Compilation**: Build for ARM64 on any Linux host using the `Renesas RZ/G2L-builder` container. ### Native Compilation (on Renesas RZ/G2L) #### Install Dependencies
+# Polaris-HAL
+
+## Project Summary
+
+Polaris-HAL is the C++ hardware-abstraction layer for Polaris boards. It combines a generated and protocol-defined gRPC boundary under `protos/` with one library directory per hardware capability under `src/`. The protocol set includes common messages, client and HAL services, a module registry, and typed module definitions for CPU, GPU, storage, thermal, networking, cameras, audio, GPIO, sensors, safety, connectivity, and specialized peripherals. The server side contains the HAL service implementation and typed module handler; the client side provides a reusable gRPC client for callers such as Polaris-Client.
+
+Each capability library follows the repository CMake structure and exposes a small C++ interface. The codebase includes platform constants and registry data, Docker build/package helpers, Doxygen configuration, formatting and cppcheck targets, and deployment-oriented Make targets. This is a substantial implementation surface, but hardware behavior depends on device nodes, kernel drivers, and the actual Polaris board. A source-level library or test executable is not proof that a peripheral is present or that an operation succeeds on target hardware.
+
+Automated evidence is strongest in the per-module test tree: CMake-backed test programs exist for most listed libraries, including CPU, GPU, camera, video, Ethernet, USB, power, safety, reliability, storage, and system functions. The repository also has a shared test runner and CMake test wiring. The root Makefile declares native/container builds, package targets, `test`, `format`, `cppcheck`, and `doc`; Docker is the default path for the checked-in workflow. The inventory distinguishes protocol/library presence from real-board validation.
+
+## Feature Inventory
+
+| # | Name / Description | Implemented? | Test Coverage? | Manual Test |
+|---:|---|---|---|---|
+| 1 | Common protobuf types and HAL/client services | Implemented | Protocol CMake wiring; service integration partial | [ ] Manual verification required |
+| 2 | gRPC HAL server and typed module handler | Implemented | Service test executables present; depth varies | [ ] Manual verification required |
+| 3 | gRPC HAL client | Implemented | No dedicated client assertion suite found | [ ] Manual verification required |
+| 4 | Module registry and generated module list | Implemented | Registry sources/tests present | [ ] Manual verification required |
+| 5 | Compute libraries: CPU, GPU, DLA, vision accelerator | Implemented | Per-module test programs found | [ ] Manual verification required |
+| 6 | Camera, display, video, and audio libraries | Implemented | Per-module tests found | [ ] Manual verification required |
+| 7 | Networking and connectivity: Ethernet, switch, USB, PCIe | Implemented | Per-module tests found | [ ] Manual verification required |
+| 8 | GPIO, IMU, GNSS, environmental, and timing modules | Implemented | Per-module tests found | [ ] Manual verification required |
+| 9 | Storage, memory, power, thermal, watchdog | Implemented | Per-module tests found | [ ] Manual verification required |
+| 10 | Safety, reliability, security, and debug modules | Implemented | Per-module tests found | [ ] Manual verification required |
+| 11 | Platform-specific device access and constants | Partial | Test executables exist; target matrix not found | [ ] Manual verification required |
+| 12 | Docker cross-build and package workflows | Implemented | Make targets declared; image execution unverified | [ ] Manual verification required |
+| 13 | Doxygen, clang-format, and cppcheck integration | Implemented | Targets declared; reports not inspected | [ ] Manual verification required |
+
+## Validation
+
 ```bash
-sudo apt update
-sudo apt install -y build-essential cmake ninja-build git \ protobuf-compiler libprotobuf-dev libprotoc-dev \ libgrpc++-dev libsqlite3-dev libboost-system-dev \ libboost-date-time-dev doxygen clang-format cppcheck
-``` #### Build and Run Tests
-```bash
-make build
-make run
-``` ### Docker-based Cross-Compilation The Docker image is based on `ubuntu:22.04` (ARM64) and is named `Polaris`. #### Build Process 1. **Ensure Docker is Installed** ```bash make docker-install ``` 2. **Build the Docker Image** ```bash make docker-image ``` This creates a Docker image named `Polaris` based on `ubuntu:22.04` with all necessary ARM64 build dependencies pre-installed. 3. **Build** ```bash make docker-build ``` This command: - Runs the Docker container with the project mounted - Configures the build system with Ninja generator - Builds all targets - Outputs binaries in the `build/cross/` directory 4. **Deploy and Run on Target Renesas RZ/G2L** ```bash # For Renesas RZ/G2L Primary (192.168.1.3) make run-a # For Renesas RZ/G2L Secondary (192.168.1.13) make run-b # Specify custom IP address make run-b IP_B=192.168.200.2
-``` ## Platform-Specific Notes ### AI Inference (DLA)
-- **Hailo-8** (PCIe HAT+): detected at `/dev/hailo0`, kernel module `hailo_pci` (vendor `0x1e60`)
-- **Coral USB Edge TPU**: detected via USB vendor `18d1` at `/dev/apex_0` ### GPU (Renesas RZ/G2L)
-- devfreq sysfs: `/sys/class/devfreq/fde00000.gpu/`
-- DRM: `/dev/dri/card0`, `/dev/dri/renderD128`
-- Module: `v3d` ### Video Codec
-- H.264 encode/decode: `polaris_compatible-codec` at `/dev/video10` (encoder), `/dev/video11` (decoder)
-- H.265/HEVC decode: `rpivid` at `/dev/video18` or `/dev/video19` ### Camera (CSI)
-- Unicam CSI-2 controller: `/sys/bus/platform/devices/1f00110000.csi`
-- V4L2 device: `/dev/video0`, media controller: `/dev/media0` ### Debug UART
-- `/dev/ttyAMA0` (115200 8N1 by default on Renesas RZ/G2L) ## Make Targets For the full list of supported commands, run: ```bash
-make help
-``` ## Contributing 1. Follow the established code formatting (use `make format`)
-2. Run static analysis before submitting (`make cppcheck`)
-3. Add tests for new functionality
-4. Update documentation as needed
+make docker-build
+make test
+make format
+make cppcheck
+```
+
+Run module tests on a supported board to validate drivers, permissions, timing, and physical peripherals.
