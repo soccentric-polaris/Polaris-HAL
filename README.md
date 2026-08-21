@@ -2,11 +2,33 @@
 
 ## Project Summary
 
-Polaris-HAL is the C++ hardware-abstraction layer for Polaris boards. It combines a generated and protocol-defined gRPC boundary under `protos/` with one library directory per hardware capability under `src/`. The protocol set includes common messages, client and HAL services, a module registry, and typed module definitions for CPU, GPU, storage, thermal, networking, cameras, audio, GPIO, sensors, safety, connectivity, and specialized peripherals. The server side contains the HAL service implementation and typed module handler; the client side provides a reusable gRPC client for callers such as Polaris-Client.
+- Polaris-HAL is the C++ hardware-abstraction layer for Polaris boards. It
+  combines a generated and protocol-defined gRPC boundary under `protos/`
+  with one library directory per hardware capability under `src/`. The
+  protocol set includes common messages, client and HAL services, a module
+  registry, and typed module definitions for CPU, GPU, storage, thermal,
+  networking, cameras, audio, GPIO, sensors, safety, connectivity, and
+  specialized peripherals. The server side contains the HAL service
+  implementation and typed module handler; the client side provides a
+  reusable gRPC client for callers such as Polaris-Client.
 
-Each capability library follows the repository CMake structure and exposes a small C++ interface. The codebase includes platform constants and registry data, Docker build/package helpers, Doxygen configuration, formatting and cppcheck targets, and deployment-oriented Make targets. This is a substantial implementation surface, but hardware behavior depends on device nodes, kernel drivers, and the actual Polaris board. A source-level library or test executable is not proof that a peripheral is present or that an operation succeeds on target hardware.
+- Each capability library follows the repository CMake structure and exposes
+  a small C++ interface. The codebase includes platform constants and
+  registry data, Docker build/package helpers, Doxygen configuration,
+  formatting and cppcheck targets, and deployment-oriented Make targets.
+  This is a substantial implementation surface, but hardware behavior
+  depends on device nodes, kernel drivers, and the actual Polaris board. A
+  source-level library or test executable is not proof that a peripheral is
+  present or that an operation succeeds on target hardware.
 
-Automated evidence is strongest in the per-module test tree: CMake-backed test programs exist for most listed libraries, including CPU, GPU, camera, video, Ethernet, USB, power, safety, reliability, storage, and system functions. The repository also has a shared test runner and CMake test wiring. The root Makefile declares native/container builds, package targets, `test`, `format`, `cppcheck`, and `doc`; Docker is the default path for the checked-in workflow. The inventory distinguishes protocol/library presence from real-board validation.
+- Automated evidence is strongest in the per-module test tree: CMake-backed
+  test programs exist for most listed libraries, including CPU, GPU,
+  camera, video, Ethernet, USB, power, safety, reliability, storage, and
+  system functions. The repository also has a shared test runner and CMake
+  test wiring. The root Makefile declares native/container builds, package
+  targets, `test`, `format`, `cppcheck`, and `doc`; Docker is the default
+  path for the checked-in workflow. The inventory distinguishes
+  protocol/library presence from real-board validation.
 
 ## Feature Inventory
 
