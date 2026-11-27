@@ -60,7 +60,7 @@ Native packages are emitted by CPack in `build/native`; cross packages are gener
 ## 6. Deployment, install, and run
 
 ```bash
-HAL_SSH_USER=nvidia HAL_SSH_PASS='REDACTED' make deploy-a
+HAL_SSH_USER=root HAL_SSH_PASS='REDACTED' make deploy-a
 make deploy-b
 make run-a [app] [args...]
 make run-b [app] [args...]

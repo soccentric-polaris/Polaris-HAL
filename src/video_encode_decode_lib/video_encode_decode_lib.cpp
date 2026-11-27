@@ -145,7 +145,7 @@ static std::string vedGetModel()
     return vedReadFile(POLARIS_RZG2L_DT_MODEL_PATH);
 }
 
-/** Confirm we are running on a Polaris Platform platform. */
+/** Confirm we are running on a Polaris platform. */
 static bool isPi5Platform()
 {
     std::string model = vedGetModel();

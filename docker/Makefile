@@ -7,7 +7,7 @@ build:
 	docker buildx build --platform linux/arm64 --load --build-arg UID=$(shell id -u) --build-arg GID=$(shell id -g) -t $(IMAGE_NAME) .
 
 run:
-	# No --gpus flag: Renesas RZ/G2L has Renesas RZ/G2L (not CUDA)
+	# No --gpus flag: Renesas RZ/G2L has no CUDA-capable GPU
 	docker run -it --rm --hostname "Renesas RZ/G2L" $(IMAGE_NAME)
 
 clean:
